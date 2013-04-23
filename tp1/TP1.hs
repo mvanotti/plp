@@ -2,6 +2,7 @@ module TP1 where
 
 import Prelude
 import Data.List
+import Data.Maybe
 
 {-|
     El traductor se representa por:
@@ -328,6 +329,54 @@ gen (f, g, q) w = if null w then
                             False
                         else
                             or (map (\x -> gen (f, g, f q (snd x) ) (w \\ (fst x))) prefijos)
+
+{-| pasarEntreBases toma dos Strings que representen sistemas de numeración
+    posicionales de enteros y retorna un traductor que convierte cualquier substring de la base
+    origen en un String de la base destino.
+
+    >>> let t = pasarEntreBases "0123456789" "01" in aplicando t "5."
+    "101."
+
+    >>> let t = pasarEntreBases "0123456789" "abcdefghij" in aplicando t "101."
+    "bab."
+-}
+pasarEntreBases :: String -> String -> Traductor String
+pasarEntreBases base destino = (f, g, "") where
+                            f q c = if not (elem c base) then
+                                        ""
+                                    else
+                                        q ++ [c]
+                            g q c = if not (elem c base) then
+                                        pasarABase destino (pasarAEntero base q) ++ [c]
+                                    else
+                                        ""
+{- | Dada un sistema de numeracion posicional de enteros y un entero, retorna un
+    String que consiste en representar ese entero en la base dada.
+
+    >>> pasarABase "01" 5
+    "101"
+-}
+pasarABase :: String -> Integer -> String
+pasarABase base numero =
+    -- divisionesParciales tiene la lista de los resultados de dividir al numero por la base.
+    let divisionesParciales = takeWhile (>0) $ iterate (flip div (toInteger $ length base)) numero in
+        -- restos tiene los restos de ir dividiendo el número por la base.
+        let restos = map (flip mod (toInteger $ length base)) $ divisionesParciales in
+            reverse [ base!!(fromInteger x) | x <- restos]
+
+{- | Dado a una base y un número expresado en esa base, se lo convierte a enter
+
+    >>> pasarAEntero "0123456789abcdef" "fe0"
+    4064
+-}
+pasarAEntero :: String -> String -> Integer
+pasarAEntero base numero =
+    -- indices son los indices dentro de la base de cada caracter
+    let indices = [toInteger $ fromJust $ elemIndex c base | c <- numero] in
+        -- potencias es la base elevada a la posición de cada elemento del numero
+        let potencias base k = [(toInteger base) ^ x | x <- reverse.(take k) $ [0..]] in
+            sum $ zipWith (*) indices (potencias (length base) (length numero))
+
 -- Amor y Paz
 
 
