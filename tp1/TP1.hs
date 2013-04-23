@@ -143,11 +143,12 @@ fAst' f q0 (c:cs) = fAst' f (f q0 c) cs
     >>> foldl (flip (:)) "" "1234"
     "4321"
 
-    >>> fAst (fst espejarEntreAs) "" "asd"
+    >>> let fst (a, b, c) = a in fAst (fst espejarEntreAs) "" "asd"
     "ds"
-    >>> fAst (fst espejarEntreAs) "" "asda"
+
+    >>> let fst (a, b, c) = a in fAst (fst espejarEntreAs) "" "asda"
     ""
-    donde fst se refiere a una función que tome el primer elemento de la tripla
+
 -}
 fAst :: (q -> Char -> q) -> q -> String -> q
 fAst = foldl
@@ -181,6 +182,12 @@ gAst' f g q0 (c:cs) = (g q0 c) ++ gAst' f g (f q0 c) cs
     en cuenta los estados obtenidos tras aplicar la función de transición de estado.
 
     Cada caracter procesado retorna un nuevo string, que es concatenado con el resto.
+
+    >>> let fst (a, b, c) = a in let snd (a, b, c) = b in gAst (fst espejarEntreAs) (snd espejarEntreAs) "" "aaabaabcacddda"
+    "aaabaacbadddca"
+
+    >>> let fst (a, b, c) = a in let snd (a, b, c) = b in gAst (fst espejarEntreAs) (snd espejarEntreAs) "amipalabra" "aabca"
+    "amipalabraaacba"
 -}
 
 {-  La idea es: con scanl obtenemos la lista de los estados parciales al procesar
@@ -193,14 +200,6 @@ gAst' f g q0 (c:cs) = (g q0 c) ++ gAst' f g (f q0 c) cs
     scanl deja todos los estados parciales que serían de aplicar la función fAst
     sobre cada prefijo del String.
     (Se puede ver como aplicar foldl a todos los prefijos de la lista).
-
-
-    >>> gAst (fst espejarEntreAs) (snd espejarEntreAs) "" "aaabaabcacddda"
-    "aaabaacbadddca"
-    >>> gAst (fst espejarEntreAs) (snd espejarEntreAs) "amipalabra" "aabca"
-    "amipalabraaacba"
-
-    donde fst es igaul que antes y snd obtiene el segundo elemento de la tripla
 -}
 gAst :: (q -> Char -> q) -> (q -> Char -> String) -> q -> String -> String
 gAst f g q0 xs = let estadosParciales = scanl f q0 xs in
@@ -263,25 +262,23 @@ salidaAes t = aplicando t $ repeat 'a'
 
     * Un traductor
 
-    * Un "String"
+    * Una "String" de tipo numerico
 
-	Compara si existe una cadena tal que al traducirla se obtenga el string 
-	pasado como parametro.
-	
-	Genera a partir de cadenas de strings numericos cadenas de strings
-	en orden creciente en la longitud de la cadena y se fija si la 
-	traduccion obtenida es prefijo del string recibido por parametro.
-    
-    >>> salidaPosible cambiarAE "4567891"
-	True
-	
-	>>> salidaPosible cambiarAE "4567891"
-	True
-	
-	Como "cambiarAE" no genera ningun cambio en un string numerico, entonces
-	"salidaPosible" de un string numerico siempre devolvera "True".
-	
-	En cambio, si el string pasado como parametro no es de tipo numerico	
+    Compara si existe una cadena tal queal traducirla se obtenga el string
+    pasado como parametro.
+
+    Genera las cadenasde string numericos en orden creciente en la longitud
+    de la cadena y se fija si la traduccion obtenida es prefijo del string
+    recibido por parametro.
+
+    >>> salidaPosible cambiarAE "456"
+    True
+
+    >>> salidaPosible cambiarAE "456e7"
+    False
+
+    Como "cambiarAE" no genera ningun cambio en un srting numerico, "salidaPosible"
+    siempre devolvera "True"
 -}
 
 {-  la idea general es la siguiente: probar aplicale al traductor
