@@ -142,6 +142,11 @@ fAst' f q0 (c:cs) = fAst' f (f q0 c) cs
     >>> foldl (flip (:)) "" "1234"
     "4321"
 
+    >>> fAst (fst espejarEntreAs) "" "asd" <<<
+    "ds"
+    >>> fAst (fst espejarEntreAs) "" "asda" <<<
+    ""
+    donde fst se refiere a una función que tome el primer elemento de la tripla
 -}
 fAst :: (q -> Char -> q) -> q -> String -> q
 fAst = foldl
