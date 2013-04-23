@@ -298,6 +298,16 @@ gtoger _ 'E' = "Epe"
 gtoger _ 'I' = "Ipi"
 gtoger _ 'O' = "Opo"
 gtoger _ 'U' = "Upu"
+gtoger _ '0' = "0p0"
+gtoger _ '1' = "1p1"
+gtoger _ '2' = "2p2"
+gtoger _ '3' = "3p3"
+gtoger _ '4' = "4p4"
+gtoger _ '5' = "5p5"
+gtoger _ '6' = "6p6"
+gtoger _ '7' = "7p8"
+gtoger _ '8' = "8p8"
+gtoger _ '9' = "9p9"
 gtoger _  c = c:[]
 
 toger = (ftoger, gtoger, ())
