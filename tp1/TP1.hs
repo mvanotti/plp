@@ -1,16 +1,24 @@
-Module TP1 where
+module TP1 where
 
 import Prelude
 
-{-| El traductor se representa por:
-     - un conjunto de estados "q",
-     - una funcion de transicion (primer parametro)
-     - una funcion de output (segundo parametro)
-     - un estado inicial.
+{-|
+    El traductor se representa por:
+
+     * un conjunto de estados
+
+     * una funcion de transicion (primer parametro)
+
+     * una funcion de output (segundo parametro)
+
+     * un estado inicial.
 -}
 type Traductor q = (q -> Char -> q, q -> Char -> String, q)
 
--- |Traductor que cambia las "a"s por "e"s y viceversa.
+-- | Traductor que cambia las letras a por e y viceversa.
+--
+-- >>> aplicando cambiarAE "abcdefa123"
+-- "ebcdafe123"
 cambiarAE :: Traductor ()
 cambiarAE = (const, g, ())
     where
@@ -19,15 +27,19 @@ cambiarAE = (const, g, ())
         g () 'e' = "a"
         g ()  x  = [x]
 
--- |Traductor que intercambia caracteres consecutivos.
--- EJERCICIO
-
+-- | Traductor que intercambia caracteres consecutivos.
+--
 -- Como lo que se quiere es intercambiar las posiciones de a pares, nos
 -- interesa saber en que posición (par o impar) se encuentra el caracter
--- leido. Si está en una posición impar, guardamos en el estado el
+-- leido.
+--
+-- Si está en una posición impar, guardamos en el estado el
 -- caracter leido para ser escrito más tarde, y no escribimos nada. Si
 -- el caracter leido está en una posición par, escribimos el caracter
 -- actual y luego el caracter  que fue almacenado en el estado.
+--
+-- >>> aplicando intercambiarConsecutivos "paradigmas"
+-- "aparidmgsa"
 
 intercambiarConsecutivos :: Traductor (Maybe Char)
 intercambiarConsecutivos = (f, g, Nothing)
@@ -40,10 +52,16 @@ intercambiarConsecutivos = (f, g, Nothing)
         g Nothing c = ""
         g (Just k) c = [c, k]
 
--- Traductor que sea la identidad, salvo que nunca genera
+-- | Traductor que sea la identidad, salvo que nunca genera
 -- salida output de las "a"s y, cuando aparece una "z",
 -- muestra la "z" y luego todas las "a"s que se acumularon
 -- juntas.
+--
+-- >>> aplicando acumularAes "Esto acumula todas las aes hasta la z."
+-- "Esto cumul tods ls es hst l zaaaaaaaa."
+--
+-- >>> aplicando acumularAes "Si pongo una a despues de la z no aparece."
+-- "Si pongo un  despues de l zaaa no prece."
 acumularAes :: Traductor Int
 acumularAes = (f, g, 0)
     where
@@ -57,17 +75,30 @@ acumularAes = (f, g, 0)
         g x 'a' = [ ]
         g x  c  = [c]
 
--- Traductor que de vuelta (ie. espeje) todo lo que esta
--- entre dos "a"s consecutivas.
--- EJERCICIO
+{- | Traductor que de vuelta (ie. espeje) todo lo que esta
+     entre dos "a"s consecutivas.
 
--- Usamos es el estado para ir guardando los caracteres que se van
--- leyendo, que son distinto de 'a', y los guardamos en el estado de
--- manera tal que queden ya espejados. Entonces, cada vez que se lee un
--- caracter, si es distitno de 'a', no se escribe nada. Si es 'a',
--- escribimos lo que estaba almacenado en el estado, seguido de 'a'. De
--- esta forma, el resultado obtenido es el espejado de caracteres que
--- están entre 'a'es.
+    Usamos es el estado para ir guardando los caracteres que se van
+    leyendo, que son distinto de 'a', y los guardamos en el estado de
+    manera tal que queden ya espejados. Entonces, cada vez que se lee un
+    caracter, si es distitno de 'a', no se escribe nada. Si es 'a',
+    escribimos lo que estaba almacenado en el estado, seguido de 'a'. De
+    esta forma, el resultado obtenido es el espejado de caracteres que
+    están entre 'a'es.
+
+    >>> aplicando espejarEntreAs "aeioua"
+    "auoiea"
+
+    >>> aplicando espejarEntreAs "espejo"
+    ""
+
+    >>> aplicando espejarEntreAs "espejoaeso"
+    "ojepsea"
+
+    >>> aplicando espejarEntreAs "aderecho"
+    "a"
+-}
+
 espejarEntreAs :: Traductor String
 espejarEntreAs = (f, g, [])
     where
@@ -80,23 +111,35 @@ espejarEntreAs = (f, g, [])
         g xs  c  = []
 
 
--- Calcular la clausura de Kleene de la funcion de
--- transicion pasada como parametro
--- (version recursiva explicita).
+{- | Calcular la clausura reflexo-transitiva de la funcion de
+    transicion pasada como parametro
+    (version recursiva explicita).
+-}
 fAst' :: (q -> Char -> q) -> q -> String -> q
 fAst' f q0    ""  = q0
 fAst' f q0 (c:cs) = fAst' f (f q0 c) cs
 
--- Calcular la clausura de Kleene de la funcion de
--- transicion pasada como parametro
--- (version con esquemas de recursion).
--- EJERCICIO
+{- | Calcular la clausura reflexo-transitiva de la funcion de
+    transicion pasada como parametro
+    (version con esquemas de recursion).
 
--- Lo que queremos es aplicar sucesivas veces la f que recibe un
--- traductor, es decir, queremos obtener el estado final luego de haber
--- procesado el string. Ademas, queremos que la f sea aplicada en el
--- sentido en el que se lee el string (de izquierda a derecha). Esto
--- mismo es lo que hace la funcion foldl
+    La función "fAst'" recibe una función de transición de estados como parámetro
+    (función usada por un "Traductor"), un estado inicial (que coincide con el
+    tipo de entrada de la función de transición), y un "String".
+
+    "fAst'" aplica sucesivamente la función recibida de izquierda a derecha sobre
+    el "String" comenzando por el estado recibido como argumento. "fAst'" va tomando
+    elemento por elemento del "String" y realizando la transición de estados. Al finalizar
+    obtenemos el último estado de la transición.
+
+    Por lo descripto anteriormente, la función es equivalente a "foldl".
+
+    >>> fAst' (flip (:)) "" "1234"
+    "4321"
+    >>> foldl (flip (:)) "" "1234"
+    "4321"
+
+-}
 fAst :: (q -> Char -> q) -> q -> String -> q
 fAst = foldl
 
