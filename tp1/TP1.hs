@@ -92,14 +92,14 @@ acumularAes = (f, g, 0)
     >>> aplicando espejarEntreAs "aeioua"
     "auoiea"
 
-    >>> aplicando espejarEntreAs "espejo"
-    ""
-
-    >>> aplicando espejarEntreAs "espejoaeso"
+    >>> aplicando espejarEntreAs "espejoa"
     "ojepsea"
 
-    >>> aplicando espejarEntreAs "aderecho"
-    "a"
+    >>> aplicando espejarEntreAs "espejoaesoa"
+    "ojepseaosea"
+
+    >>> aplicando espejarEntreAs "aderechoa"
+    "aohcereda"
 -}
 
 espejarEntreAs :: Traductor String
