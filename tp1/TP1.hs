@@ -268,8 +268,9 @@ gen (f, g, q) w = if null w then
                         else
                             or (map (\x -> gen (f, g, f q (snd x) ) (w \\ (fst x))) prefijos)
 -- Amor y Paz
---
---
+
+
+-- Traduce español a un lenguaje secreto
 ftoger :: () -> Char -> ()
 ftoger _ _ = ()
 
