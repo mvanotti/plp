@@ -268,3 +268,22 @@ gen (f, g, q) w = if null w then
                         else
                             or (map (\x -> gen (f, g, f q (snd x) ) (w \\ (fst x))) prefijos)
 -- Amor y Paz
+--
+--
+ftoger :: () -> Char -> ()
+ftoger _ _ = ()
+
+gtoger :: () -> Char -> String
+gtoger _ 'a' = "apa"
+gtoger _ 'e' = "epe"
+gtoger _ 'i' = "ipi"
+gtoger _ 'o' = "opo"
+gtoger _ 'u' = "upu"
+gtoger _ 'A' = "Apa"
+gtoger _ 'E' = "Epe"
+gtoger _ 'I' = "Ipi"
+gtoger _ 'O' = "Opo"
+gtoger _ 'U' = "Upu"
+gtoger _  c = c:[]
+
+toger = (ftoger, gtoger, ())
