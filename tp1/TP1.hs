@@ -247,6 +247,38 @@ salidaAes t = aplicando t $ repeat 'a'
 
 -- | Decidir si es posible que el traductor dado de la salida
 -- dada como segundo parametro
+
+{- | La función "salisaPosible" recibe como parámetros:
+
+    * Un traductor
+
+    * Una "String" de tipo numerico
+
+	Compara si existe una cadena tal queal traducirla se obtenga el string 
+	pasado como parametro.
+	
+	Genera las cadenasde string numericos en orden creciente en la longitud 
+	de la cadena y se fija si la traduccion obtenida es prefijo del string 
+	recibido por parametro.
+    
+    >>> salidaPosible cambiarAE "4567891"
+	True
+	
+	>>> salidaPosible cambiarAE "4567891"
+	True
+	
+	Como "cambiarAE" no genera ningun cambio en un srting numerico, "salidaPosible"
+	siempre devolvera "True"
+-}
+
+{-  la idea general es la siguiente: probar aplicale al traductor
+	todas las cadenas de numeros posibles y fijarnos si el resultado de
+	alguna es igual al string pasado como segundo parametro (w).
+	Para genera todas las cadenas posibles de numeros usamos la
+	clausura de kleene de 0.9.
+	Como sabemos la longitud de w, solo miramos los elemenos que al
+	traducirlos tienen longitud menor o igual a la longitud de w.
+ -}
 salidaPosible :: Traductor q -> String -> Bool
 salidaPosible t1 w = any (\x -> aplicando t1 x == w) (takeWhile (\x -> length x <= length w) (kleeneStar "0123456789"))
     where
@@ -268,9 +300,10 @@ filtrarPalabras xs = (f, g, "") where
                             else
                                 ""
 
---Otra forma de resolver el ejercicio poría ser usando backtracking
---comparando que los prefijos coincidan con los prefijos de la
---lista que nos pasan por parámetro (W)
+{-	Otra forma de resolver el ejercicio poría ser usando backtracking
+	comparando que los prefijos coincidan con los prefijos de la
+	lista que nos pasan por parámetro (W)
+-}
 gen :: Traductor q -> String -> Bool
 gen (f, g, q) w = if null w then
                         True
