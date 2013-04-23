@@ -15,10 +15,11 @@ import Prelude
 -}
 type Traductor q = (q -> Char -> q, q -> Char -> String, q)
 
--- | Traductor que cambia las letras a por e y viceversa.
---
--- >>> aplicando cambiarAE "abcdefa123"
--- "ebcdafe123"
+{-| Traductor que cambia las letras a por e y viceversa.
+
+    >>> aplicando cambiarAE "abcdefa123"
+    "ebcdafe123"
+-}
 cambiarAE :: Traductor ()
 cambiarAE = (const, g, ())
     where
@@ -27,20 +28,20 @@ cambiarAE = (const, g, ())
         g () 'e' = "a"
         g ()  x  = [x]
 
--- | Traductor que intercambia caracteres consecutivos.
---
--- Como lo que se quiere es intercambiar las posiciones de a pares, nos
--- interesa saber en que posición (par o impar) se encuentra el caracter
--- leido.
---
--- Si está en una posición impar, guardamos en el estado el
--- caracter leido para ser escrito más tarde, y no escribimos nada. Si
--- el caracter leido está en una posición par, escribimos el caracter
--- actual y luego el caracter  que fue almacenado en el estado.
---
--- >>> aplicando intercambiarConsecutivos "paradigmas"
--- "aparidmgsa"
+{-| Traductor que intercambia caracteres consecutivos.
 
+    Como lo que se quiere es intercambiar las posiciones de a pares, nos
+    interesa saber en que posición (par o impar) se encuentra el caracter
+    leido.
+
+    Si está en una posición impar, guardamos en el estado el
+    caracter leido para ser escrito más tarde, y no escribimos nada. Si
+    el caracter leido está en una posición par, escribimos el caracter
+    actual y luego el caracter  que fue almacenado en el estado.
+
+    >>> aplicando intercambiarConsecutivos "paradigmas"
+    "aparidmgsa"
+-}
 intercambiarConsecutivos :: Traductor (Maybe Char)
 intercambiarConsecutivos = (f, g, Nothing)
     where
@@ -52,16 +53,17 @@ intercambiarConsecutivos = (f, g, Nothing)
         g Nothing c = ""
         g (Just k) c = [c, k]
 
--- | Traductor que sea la identidad, salvo que nunca genera
--- salida output de las "a"s y, cuando aparece una "z",
--- muestra la "z" y luego todas las "a"s que se acumularon
--- juntas.
---
--- >>> aplicando acumularAes "Esto acumula todas las aes hasta la z."
--- "Esto cumul tods ls es hst l zaaaaaaaa."
---
--- >>> aplicando acumularAes "Si pongo una a despues de la z no aparece."
--- "Si pongo un  despues de l zaaa no prece."
+{-| Traductor que sea la identidad, salvo que nunca genera
+    salida output de las "a"s y, cuando aparece una "z",
+    muestra la "z" y luego todas las "a"s que se acumularon
+    juntas.
+
+    >>> aplicando acumularAes "Esto acumula todas las aes hasta la z."
+    "Esto cumul tods ls es hst l zaaaaaaaa."
+
+    >>> aplicando acumularAes "Si pongo una a despues de la z no aparece."
+    "Si pongo un  despues de l zaaa no prece."
+-}
 acumularAes :: Traductor Int
 acumularAes = (f, g, 0)
     where
@@ -123,18 +125,18 @@ fAst' f q0 (c:cs) = fAst' f (f q0 c) cs
     transicion pasada como parametro
     (version con esquemas de recursion).
 
-    La función "fAst'" recibe una función de transición de estados como parámetro
+    La función "fAst" recibe una función de transición de estados como parámetro
     (función usada por un "Traductor"), un estado inicial (que coincide con el
     tipo de entrada de la función de transición), y un "String".
 
-    "fAst'" aplica sucesivamente la función recibida de izquierda a derecha sobre
-    el "String" comenzando por el estado recibido como argumento. "fAst'" va tomando
+    "fAst" aplica sucesivamente la función recibida de izquierda a derecha sobre
+    el "String" comenzando por el estado recibido como argumento. "fAst" va tomando
     elemento por elemento del "String" y realizando la transición de estados. Al finalizar
     obtenemos el último estado de la transición.
 
     Por lo descripto anteriormente, la función es equivalente a "foldl".
 
-    >>> fAst' (flip (:)) "" "1234"
+    >>> fAst (flip (:)) "" "1234"
     "4321"
     >>> foldl (flip (:)) "" "1234"
     "4321"
@@ -143,44 +145,71 @@ fAst' f q0 (c:cs) = fAst' f (f q0 c) cs
 fAst :: (q -> Char -> q) -> q -> String -> q
 fAst = foldl
 
--- Calcular la clausura de Kleene de la funcion de
--- salida pasada como parametro junto con la funcion
--- de transicion pasada como parametro
--- (version recursiva explicita).
+{- | Calcular la clausura de Kleene de la funcion de
+    salida pasada como parametro junto con la funcion
+    de transicion pasada como parametro
+    (version recursiva explicita).
+-}
 gAst' :: (q -> Char -> q) -> (q -> Char -> String) ->
          q -> String -> String
 gAst' f g q0    ""  = ""
 gAst' f g q0 (c:cs) = (g q0 c) ++ gAst' f g (f q0 c) cs
 
--- Calcular la clausura de Kleene de la funcion de salida
--- pasada como parametro junto con la funcion de
--- transicion pasada como parametro
--- (version con esquemas de recursion).
--- EJERCICIO
+{- | Calcular la clausura de Kleene de la funcion de salida
+    pasada como parametro junto con la funcion de
+    transicion pasada como parametro
+    (version con esquemas de recursion).
 
--- La idea es: con scanl obtenemos la lista de los estados al procesar
--- cada caracter. Luego con zipWith armamos uan lista que contiene el
--- resultado de aplicar g a cada estado con el caracter correspondiente,
--- obteniendo asi una lista con la traduccion parcial de cada caracter.
--- Es decir, nos queda la lista de todos los strings que queremos tener.
--- Finalmente hacemos un concat y unificamos todo.
+    La función "gAst" recibe como parámetros:
 
-gAst :: (q -> Char -> q) -> (q -> Char -> String) ->
-        q -> String -> String
+    * Una función de transición de estados
+
+    * Una función de traducción
+
+    * Un estado inicial (que coincide con los estados recibidos por las funciones anteriores)
+
+    * Un "String"
+
+    Aplica la función de traducción de izquierda a derecha por todo el String, teniendo
+    en cuenta los estados obtenidos tras aplicar la función de transición de estado.
+
+    Cada caracter procesado retorna un nuevo string, que es concatenado con el resto.
+-}
+
+{-  La idea es: con scanl obtenemos la lista de los estados parciales al procesar
+    cada caracter. Luego con zipWith armamos una lista que contiene el
+    resultado de aplicar g a cada estado con el caracter correspondiente,
+    obteniendo asi una lista con la traduccion parcial de cada caracter.
+    Es decir, nos queda la lista de todos los strings que queremos tener.
+    Finalmente hacemos un concat y unificamos todo.
+
+    scanl deja todos los estados parciales que serían de aplicar la función fAst
+    sobre cada prefijo del String.
+    (Se puede ver como aplicar foldl a todos los prefijos de la lista).
+-}
+gAst :: (q -> Char -> q) -> (q -> Char -> String) -> q -> String -> String
 gAst f g q0 xs = let estadosParciales = scanl f q0 xs in
 		concat $ zipWith g estadosParciales xs
 
--- Dado un traductor, retornar la funcion String -> String
+-- | Dado un traductor, retornar la funcion String -> String
 -- que resulta al aplicarlo a cualquier entrada
 aplicando :: Traductor q -> String -> String
 aplicando (f, g, q) = gAst f g q
 
--- Dados dos traductores, dar un traductor tal que la
--- funcion String -> String que denota el resultado, sea
--- justo la composicion de las funciones de cada
--- uno de los parametros.
--- EJERCICIO
+{- | Dados dos traductores, dar un traductor tal que la
+   funcion String -> String que denota el resultado, sea
+   justo la composicion de las funciones de cada
+   uno de los parametros.
 
+   >>> let t1 = comp acumularAes cambiarAE in aplicando t1 "maravavillaza!"
+   "mrvvillzeeee!"
+
+   >>> let t2 = comp cambiarAE acumularAes in aplicando t2 "maravillenze!"
+   "merevillnza!"
+
+   >>> let t3 = comp cambiarAE cambiarAE in aplicando t3 "esta es la identida"
+   "esta es la identida"
+-}
 
 comp :: Traductor a -> Traductor b -> Traductor (a, b)
 comp (f, g, e) (f', g', e') = (fc, gc, ec)
@@ -190,21 +219,20 @@ comp (f, g, e) (f', g', e') = (fc, gc, ec)
         gc (q, q') c = gAst f' g' q' (g q c)
 
 
--- Dado un traductor, dar la cadena infinita que resulta de
--- procesar una lista infinita de "a"s (si se pide
--- "take n (salidaAes t)" no puede procesar infinitamente
--- para ningun "n")
--- EJERCICIO
+{- | Dado un traductor, dar la cadena infinita que resulta de
+     procesar una lista infinita de "a"s (si se pide
+     "take n (salidaAes t)" no puede procesar infinitamente
+     para ningun "n")
 
+     >>> take 10 (salidaAes cambiarAE)
+     "eeeeeeeeee"
+
+-}
 salidaAes :: Traductor q -> String
-salidaAes t = aplicando t xs
-    where
-        xs = ['a', 'a'..]
+salidaAes t = aplicando t $ repeat 'a'
 
--- Decidir si es posible que el traductor dado de la salida
+-- | Decidir si es posible que el traductor dado de la salida
 -- dada como segundo parametro
-
--- EJERCICIO
 salidaPosible :: Traductor q -> String -> Bool
 salidaPosible t1 w = any (\x -> aplicando t1 x == w) (takeWhile (\x -> length x <= length w) (kleeneStar "0123456789"))
     where
