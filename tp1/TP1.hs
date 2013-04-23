@@ -142,9 +142,9 @@ fAst' f q0 (c:cs) = fAst' f (f q0 c) cs
     >>> foldl (flip (:)) "" "1234"
     "4321"
 
-    >>> fAst (fst espejarEntreAs) "" "asd" <<<
+    >>> fAst (fst espejarEntreAs) "" "asd"
     "ds"
-    >>> fAst (fst espejarEntreAs) "" "asda" <<<
+    >>> fAst (fst espejarEntreAs) "" "asda"
     ""
     donde fst se refiere a una función que tome el primer elemento de la tripla
 -}
@@ -198,6 +198,8 @@ gAst' f g q0 (c:cs) = (g q0 c) ++ gAst' f g (f q0 c) cs
     "aaabaacbadddca"
     >>> gAst (fst espejarEntreAs) (snd espejarEntreAs) "amipalabra" "aabca"
     "amipalabraaacba"
+
+    donde fst es igaul que antes y snd obtiene el segundo elemento de la tripla
 -}
 gAst :: (q -> Char -> q) -> (q -> Char -> String) -> q -> String -> String
 gAst f g q0 xs = let estadosParciales = scanl f q0 xs in
