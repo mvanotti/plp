@@ -1,6 +1,7 @@
 module TP1 where
 
 import Prelude
+import Data.List
 
 {-|
     El traductor se representa por:
@@ -241,6 +242,29 @@ salidaPosible t1 w = any (\x -> aplicando t1 x == w) (takeWhile (\x -> length x 
             where
                 agregarElementoATodas = \xs -> concat [map (l:) xs | l <- ls]
 
+
+
+filtrarPalabras :: [(String, String)] -> Traductor String
+filtrarPalabras xs = (f, g, "") where
+                    f q c = if (elem c " .,!") then "" else q ++ [c]
+                    g q c = if (elem c " .,!") then
+                                if (elem q [fst s | s <- xs]) then
+                                    head [snd s | s <- xs, fst s == q] ++ [c]
+                                else
+                                    q ++ [c]
+                            else
+                                ""
+
 --Otra forma de resolver el ejercicio poría ser usando backtracking
 --comparando que los prefijos coincidan con los prefijos de la
 --lista que nos pasan por parámetro (W)
+gen :: Traductor q -> String -> Bool
+gen (f, g, q) w = if null w then
+                        True
+                  else
+                    let prefijos = filter ((flip isPrefixOf w) . fst) (map (\x -> (g q x, x)) "0123456789") in
+                        if null prefijos then
+                            False
+                        else
+                            or (map (\x -> gen (f, g, f q (snd x) ) (w \\ (fst x))) prefijos)
+-- Amor y Paz
