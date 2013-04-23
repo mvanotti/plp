@@ -374,36 +374,16 @@ pasarAEntero base numero =
         let potencias base k = [(toInteger base) ^ x | x <- reverse.(take k) $ [0..]] in
             sum $ zipWith (*) indices (potencias (length base) (length numero))
 
+
+
+{- | Traduce español a un lenguaje secreto
+
+    >>> aplicando jeringoso "jeringoso"
+    "jeperipingoposopo"
+-}
+jeringoso :: Traductor ()
+jeringoso = (f, g, ()) where
+        f _ _ = ()
+        g _ c = if elem c "aAeEiIoOuU0123456789" then [c, 'p', c] else [c]
+
 -- Amor y Paz
-
-
--- | Funcion que cambia de estados secretamente
-ftoger :: () -> Char -> ()
-ftoger _ _ = ()
-
--- | Función que traduce secretamente
-gtoger :: () -> Char -> String
-gtoger _ 'a' = "apa"
-gtoger _ 'e' = "epe"
-gtoger _ 'i' = "ipi"
-gtoger _ 'o' = "opo"
-gtoger _ 'u' = "upu"
-gtoger _ 'A' = "Apa"
-gtoger _ 'E' = "Epe"
-gtoger _ 'I' = "Ipi"
-gtoger _ 'O' = "Opo"
-gtoger _ 'U' = "Upu"
-gtoger _ '0' = "0p0"
-gtoger _ '1' = "1p1"
-gtoger _ '2' = "2p2"
-gtoger _ '3' = "3p3"
-gtoger _ '4' = "4p4"
-gtoger _ '5' = "5p5"
-gtoger _ '6' = "6p6"
-gtoger _ '7' = "7p8"
-gtoger _ '8' = "8p8"
-gtoger _ '9' = "9p9"
-gtoger _  c = c:[]
-
--- | Traduce español a un lenguaje secreto
-toger = (ftoger, gtoger, ())
