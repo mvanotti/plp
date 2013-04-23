@@ -1,3 +1,5 @@
+Module TP1 where
+
 import Prelude
 
 {-| El traductor se representa por:
