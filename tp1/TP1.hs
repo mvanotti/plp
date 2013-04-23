@@ -377,10 +377,11 @@ pasarAEntero base numero =
 -- Amor y Paz
 
 
--- Traduce español a un lenguaje secreto
+-- | Funcion que cambia de estados secretamente
 ftoger :: () -> Char -> ()
 ftoger _ _ = ()
 
+-- | Función que traduce secretamente
 gtoger :: () -> Char -> String
 gtoger _ 'a' = "apa"
 gtoger _ 'e' = "epe"
@@ -404,4 +405,5 @@ gtoger _ '8' = "8p8"
 gtoger _ '9' = "9p9"
 gtoger _  c = c:[]
 
+-- | Traduce español a un lenguaje secreto
 toger = (ftoger, gtoger, ())
