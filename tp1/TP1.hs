@@ -229,7 +229,17 @@ comp :: Traductor a -> Traductor b -> Traductor (a, b)
 comp (f, g, e) (f', g', e') = (fc, gc, ec)
     where
         ec = (e, e')
+        --fc  es el estado resultante de aplicar los dos traductores.
+        --Es una tupla que en la primer componente devuelve el estado
+        --despues de aplicar el Traductor 'a' a un caracter c, y en la segunda componente 
+        --devuelve el estado reusltante de aplicar el Traductor 'b', al string resultante de 
+        --aplicar el Traductor a, al caracter c
         fc (q, q') c = (f q c, fAst f' q' (g q c))
+        --gc es el string resultante de haber aplicado los traductores al caracter c.
+        --Aplica el Traductor 'a' al caracter c, y luego obtiene, a partir de 
+        --gAst y la funcion de transicion de estados del Traductor 'b', la
+        --traduccion completa del string resultante de haber aplicado el 
+        --traductor 'a' al caracter c, es decir la traduccion de la composicion.
         gc (q, q') c = gAst f' g' q' (g q c)
 
 
@@ -252,14 +262,14 @@ salidaAes t = aplicando t $ repeat 'a'
 
     * Un traductor
 
-    * Una "String" de tipo numerico
+    * Un "String"
 
-	Compara si existe una cadena tal queal traducirla se obtenga el string 
+	Compara si existe una cadena tal que al traducirla se obtenga el string 
 	pasado como parametro.
 	
-	Genera las cadenasde string numericos en orden creciente en la longitud 
-	de la cadena y se fija si la traduccion obtenida es prefijo del string 
-	recibido por parametro.
+	Genera a partir de cadenas de strings numericos cadenas de strings
+	en orden creciente en la longitud de la cadena y se fija si la 
+	traduccion obtenida es prefijo del string recibido por parametro.
     
     >>> salidaPosible cambiarAE "4567891"
 	True
@@ -267,8 +277,10 @@ salidaAes t = aplicando t $ repeat 'a'
 	>>> salidaPosible cambiarAE "4567891"
 	True
 	
-	Como "cambiarAE" no genera ningun cambio en un srting numerico, "salidaPosible"
-	siempre devolvera "True"
+	Como "cambiarAE" no genera ningun cambio en un string numerico, entonces
+	"salidaPosible" de un string numerico siempre devolvera "True".
+	
+	En cambio, si el string pasado como parametro no es de tipo numerico	
 -}
 
 {-  la idea general es la siguiente: probar aplicale al traductor
@@ -280,8 +292,11 @@ salidaAes t = aplicando t $ repeat 'a'
 	traducirlos tienen longitud menor o igual a la longitud de w.
  -}
 salidaPosible :: Traductor q -> String -> Bool
+--De todas las cadenas que se pueden generar a partir de 0..9, se toman las que tienen longitud menor o igual a la longitude de w.
+--Si la traduccion de alguna de ellas es igual a w, retorna True, sino False.
 salidaPosible t1 w = any (\x -> aplicando t1 x == w) (takeWhile (\x -> length x <= length w) (kleeneStar "0123456789"))
     where
+    	--dada una lista, genera todas las listas posibles con los elementos de la lista
         kleeneStar :: [a] -> [[a]]
         kleeneStar ls = concat $ iterate agregarElementoATodas [[]]
             where
