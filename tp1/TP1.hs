@@ -192,6 +192,12 @@ gAst' f g q0 (c:cs) = (g q0 c) ++ gAst' f g (f q0 c) cs
     scanl deja todos los estados parciales que serían de aplicar la función fAst
     sobre cada prefijo del String.
     (Se puede ver como aplicar foldl a todos los prefijos de la lista).
+
+
+    >>> gAst (fst espejarEntreAs) (snd espejarEntreAs) "" "aaabaabcacddda"
+    "aaabaacbadddca"
+    >>> gAst (fst espejarEntreAs) (snd espejarEntreAs) "amipalabra" "aabca"
+    "amipalabraaacba"
 -}
 gAst :: (q -> Char -> q) -> (q -> Char -> String) -> q -> String -> String
 gAst f g q0 xs = let estadosParciales = scanl f q0 xs in
