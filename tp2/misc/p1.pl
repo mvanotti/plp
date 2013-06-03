@@ -23,19 +23,25 @@ hermano(X, Y) :- hijo(X, P), hijo(Y, P), X \= Y.
 long([], 0).
 long([_|XS], N) :- long(XS, T), N is T + 1.
 
-sonIguales(1, 1).
-sonIguales(0, 0).
+sonDistintos(X, Y) :- esBin(X), esBin(Y), X \= Y.
 
 noSonIguales(1, 0).
 noSonIguales(0, 1).
 
+esBin(0).
+esBin(1).
+esBinL([]).
+esBinL([X|XS]):- esBin(X), esBinL(XS).
+
 distHam([], [], 0).
-distHam([X|XS], [Y|YS], D) :- sonIguales(X, Y), distHam(XS, YS, D).
+distHam([X|XS], [X|YS], D) :- esBin(X), distHam(XS, YS, D).
 distHam([X|XS], [Y|YS], D) :- noSonIguales(X, Y), distHam(XS, YS, T),  D is T + 1.
 
 
-distPref([], XS, X) :- long(XS, X).
-distPref(XS, [], X) :- long(XS, X).
-distPref([X|XS], [Y|YS], D) :- noSonIguales(X, Y), long(XS, A), long(YS, B), D is A + B + 2.
-distPref([X|XS], [Y|YS], D) :- sonIguales(X, Y), distPref(XS, YS, D).
-
+distPref([], XS, D) :- length(XS, D), esBinL(XS).
+distPref([X|XS], [], D) :- esBinL([X|XS]), length([X|XS], D).
+distPref([X|XS], [X|YS], D) :- esBin(X), distPref(XS, YS, D).
+distPref([X|XS], [Y|YS], D) :- 	noSonIguales(X, Y), 
+								esBinL(XS), length(XS, A), 
+								B is D - A - 2,
+								length(YS, B), esBinL(YS).
