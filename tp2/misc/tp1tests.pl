@@ -14,4 +14,15 @@ distHam([1], [0], 1).
 distHam([0,1,0], [0,0,1], N), N is 2.
 bagof(C, distHam([0,1,0], C, 2), Cs), sort(Cs, X), sort([[0,0,1], [1,1,1], [1, 0, 0]], Y), X = Y.
 
+distPref([0,1,1],[0,1,1,1],1).
+bagof(C, distPref([0,1,1], C,2), Cs),
+    sort(Cs, X),
+    sort([[0],[0, 1, 1, 0, 0],[0, 1, 1, 0, 1],[0, 1, 1, 1, 0],[0, 1, 1, 1, 1],[0, 1, 0]], Y),
+    X = Y.
+
+bagof(C, distPref([1], C, 2), Cs), sort(Cs, X),
+    sort([[0],[1, 0, 0],[1, 0, 1],[1, 1, 0],[1, 1, 1]], Y),
+    X = Y.
+
+
 :- end_tests(tp1).
