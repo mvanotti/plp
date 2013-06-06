@@ -13,24 +13,64 @@ esBin(1).
 esBinL([]).
 esBinL([X|XS]):- esBin(X), esBinL(XS).
 
+desde(X, X).
+desde(X, Y) :- N is X+1, desde(N, Y).
+
+%------------------------------------------------------------------------------%
+%                      Distancia de Hamming                                    %
+%------------------------------------------------------------------------------%
+
 distHam([], [], 0).
 distHam([X|XS], [X|YS], D) :- esBin(X), distHam(XS, YS, D).
 distHam([X|XS], [Y|YS], D) :- noSonIguales(X, Y), distHam(XS, YS, T),  D is T + 1.
 
-desde(X, X).
-desde(X, Y) :- N is X+1, desde(N, Y).
 
 
+
+%------------------------------------------------------------------------------%
+%                      Distancia de Prefijos                                   %
+%------------------------------------------------------------------------------%
+
+% Si L1 es vacía, y la longitud de L2 es D, y L2 es una lista binaria,
+% entonces vale distPref(L1, L2, D).
 distPref([], XS, D) :- length(XS, D), esBinL(XS).
+
+% Si L2 es vacía, y L1 es binaria y la longitud de L1 es D,
+% entonces vale distPref(L1, L2, D).
 distPref([X|XS], [], D) :- esBinL([X|XS]), length([X|XS], D).
+
+% Si tengo instanciada D, las cabezas de L1 y L2 son digitos binarios distintos, y L1 es BIN
+% Si A es la longitud de L1 - 1, y B es D - A - 2, y la longitud de YS es B e YS es una lista binaria,
+% entonces vale distPref(L1, L2, D).
+
+% La idea es que como ya tengo L1 y D instanciados, puedo saber cuál es la longitud de B,
+% y por ende, toda lista binaria de esa longitud me sirve.
 distPref([X|XS], [Y|YS], D) :- 	ground(D), noSonIguales(X, Y),
 								esBinL(XS), length(XS, A),
 								B is D - A - 2,
 								length(YS, B), esBinL(YS).
+
+
+% Si tengo instanciado D, y la cabeza de L1 y L2 es el mismo digito binario, y
+% la distancia de prefijos entre el resto de la lista es D,
+% entonces vale distPref(L1, L2, D).
+
+% Si las cabezas son iguales es un prefijo,
+% entonces D tiene que ser el mismo D que ignorandolas
+distPref([X|XS], [X|YS], D) :-  ground(D), esBin(X), distPref(XS, YS, D).
+
+% Si no tengo instanciado ni D ni L2, uso desde para instanciar todos los posibles D, y luego busco
+% los L2 que puedan satisfacer distPref(L1, L2, D)
 distPref([X|XS], [Y|YS], D) :- 	not(ground(D)), not(ground([Y|YS])),
                                 desde(0,D), distPref([X|XS], [Y|YS], D).
 
-distPref([X|XS], [X|YS], D) :-  ground(D), esBin(X), distPref(XS, YS, D).
+% Si no tengo instanciado D pero SI L2, se que D tiene que estar entre
+% 0 y la longitud de L1 + la longitud de l2, uso between para instanciar D
+distPref([X|XS], [Y|YS], D) :-  not(ground(D)), ground([Y|YS]),
+                                length([X|XS], L1), length([Y|YS], L2),
+                                K is L1 + L2,
+                                between(0, K, D), distPref([X|XS], [Y|YS], D).
+
 
 %atMostDiffLength(+S,?T,+N) % devuelve true si S y T difieren en longitud en a lo sumo en N y ademas son solo ceros y unos
 atMostDiffLength([],[],N) :- N >= 0.
