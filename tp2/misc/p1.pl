@@ -63,15 +63,19 @@ atMostDiffLength([0|X],[1|Y],N) :- atMostDiffLength(X,Y,N).
 atMostDiffLength([1|X],[0|Y],N) :- atMostDiffLength(X,Y,N).
 atMostDiffLength([1|X],[1|Y],N) :- atMostDiffLength(X,Y,N).
 
+%diffBit(A, B, K) devuelve true si K es |A-B|, y ademas A y B son binarios
+diffBit(A, B, K) :- esBin(A), esBin(B), noSonIguales(A, B), K is 1.
+diffBit(A, B, K) :- esBin(A), esBin(B), A=B, K is 0.
+
 %distEd(+S,?T,?N)
 distEd([],X,N) :- ground(N), N >= 0, length(X,N), esBinL(X). % si N esta instanciado chequeo que sea mayor o igual a cero, que la longitud de X sea N y que X tenga solo ceros y unos
 distEd(X,[],N) :- ground(N), N > 0, length(X,N), esBinL(X). % lo mismo que en el caso anterior pero con N > 0 para evitar repeticiones
 distEd([],X,N) :- not(ground(N)), length(X,N), esBinL(X). % si N no esta instanciado devuelvo true si X tiene longitud N y esta compuesto por ceros y unos
 distEd(X,[],N) :- not(ground(N)), not(length(X,0)), length(X,N), esBinL(X). % igual que en el caso anterior pero con not(length(X,0)) para evitar repetidos
 
-distEd([F|X],[G|Y],N) :- ground(N), atMostDiffLength(X,Y,N), distEd(X,Y,A), distEd(X,[G|Y],B), distEd([F|X],Y,C), diffBit(F,G,D), N is min(A+D,min(B+1,C+1)).
+distEd([F|X],[G|Y],N) :- ground(N), esBin(F), esBin(G), atMostDiffLength(X,Y,N), distEd(X,Y,A), distEd(X,[G|Y],B), distEd([F|X],Y,C), diffBit(F,G,D), N is min(A+D,min(B+1,C+1)).
 % cuando N esta instanciado chequeo que la diferencia de longitud entre X e Y sea a lo sumo N (para restringir el dominio de Y) y luego para cada
 % Y que genero testeo con la dinamica del enunciado
-distEd([F|X],[G|Y],N) :- not(ground(N)), distEd(X,Y,A), distEd(X,[G|Y],B), distEd([F|X],Y,C), diffBit(F,G,D), N is min(A+D,min(B+1,C+1)).
+distEd([F|X],[G|Y],N) :- not(ground(N)), esBin(F), esBin(G),distEd(X,Y,A), distEd(X,[G|Y],B), distEd([F|X],Y,C), diffBit(F,G,D), N is min(A+D,min(B+1,C+1)).
 % cuadno N no esta instanciado hago lo mismo que en el caso anterior pero sin generar los Y posibles primero ya que hay infinitos Y posibles
 % en el caso de que Y no este instanciado
