@@ -1,35 +1,15 @@
-padre(john, sue).
-padre(bob, nancy).
-padre(bill, ron).
-padre(bob, jeff).
-padre(bill, anne).
-padre(john, bill).
-
-madre(mary, bill).
-madre(mary, sue).
-madre(sue, nancy).
-madre(sue, jeff).
-madre(jane, ron).
-madre(carol, anne).
-
-hijo(X, Y) :- padre(Y, X).
-hijo(X, Y) :- madre(Y, X).
-
-descendiente(X,Y) :- hijo(X, Y).
-descendiente(X,Y) :- hijo(X, P), descendiente(P,Y).
-
-hermano(X, Y) :- hijo(X, P), hijo(Y, P), X \= Y.
-
-long([], 0).
-long([_|XS], N) :- long(XS, T), N is T + 1.
-
-sonDistintos(X, Y) :- esBin(X), esBin(Y), X \= Y.
-
+%noSonIguales(?X, ?Y).
+% No son iguales vale si ambos parametros son digitos binarios y no son el mismo.
 noSonIguales(1, 0).
 noSonIguales(0, 1).
 
+% esBin(?X)
+% esBin vale si el parámetro es un dígito binario
 esBin(0).
 esBin(1).
+
+% esBinL(?L)
+% esBinL vale si la lista es una lista compuesta por dígitos binarios.
 esBinL([]).
 esBinL([X|XS]):- esBin(X), esBinL(XS).
 
