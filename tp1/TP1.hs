@@ -258,7 +258,7 @@ salidaAes t = aplicando t $ repeat 'a'
 -- | Decidir si es posible que el traductor dado de la salida
 -- dada como segundo parametro
 
-{- | La función "salisaPosible" recibe como parámetros:
+{- | La función "salidaPosible" recibe como parámetros:
 
     * Un traductor
 
